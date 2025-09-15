@@ -6,12 +6,12 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ListView
 
-interface CoffeeListener {
-    fun onSelected(coffeeId: Int)
-}
+class ListFragment : Fragment() {
 
-class ListFragment : Fragment(), View.OnClickListener {
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var coffeeListener: CoffeeListener
@@ -42,24 +42,30 @@ class ListFragment : Fragment(), View.OnClickListener {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        val coffeeList = listOf<View>(
-            view.findViewById(R.id.affogato),
-            view.findViewById(R.id.americano),
-            view.findViewById(R.id.latte)
+        val coffeeNames = listOf(
+            getString(R.string.affogato_title),
+            getString(R.string.americano_title),
+            getString(R.string.latte_title)
         )
-        coffeeList.forEach {
-            it.setOnClickListener(this)
+        val coffeeIds = listOf(
+            DetailFragment.COFFEE_AFFOGATO,
+            DetailFragment.COFFEE_AMERICANO,
+            DetailFragment.COFFEE_LATTE
+        )
+        val listView = view.findViewById<ListView>(R.id.coffee_list)
+        listView.adapter = ArrayAdapter(requireContext(), android.R.layout.simple_list_item_1, coffeeNames)
+        listView.onItemClickListener = AdapterView.OnItemClickListener { _, _, position, _ ->
+            coffeeListener.onSelected(coffeeIds[position])
         }
     }
 
-    override fun onClick(v: View?) {
-        v?.let { coffeeListener.onSelected(it.id) }
+    interface CoffeeListener {
+        fun onSelected(coffeeId: Int)
     }
 
     companion object {
         private const val ARG_PARAM1 = "param1"
         private const val ARG_PARAM2 = "param2"
-
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             ListFragment().apply {
